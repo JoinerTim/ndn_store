@@ -1,0 +1,5 @@
+usr: ecom
+pass: 123456@aulac
+
+set persistent tune
+cmd: openvpn --mktun --dev tun --user root --group psacln

@@ -1,0 +1,13 @@
+{
+  "phone": "Number phone",
+  "facebookAccount": "Facebook account",
+  "googleAccount": "Google account",
+  "auth.hasRegistered": "{name} has been registered",
+  "auth.wrongPassword": "Wrong password",
+  "auth.wrongOldPassword": "Old password is wrong",
+  "auth.accountBlocked": "Your account has been blocked",
+  "auth.accountNotExist": "Account is not exist",
+  "auth.accountNotRegister": "Account is not register yet",
+  "auth.otpWrong": "OTP Code is invalid",
+  "auth.otpExpired": "OTP Code is expired"
+}

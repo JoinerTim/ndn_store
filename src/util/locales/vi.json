@@ -1,0 +1,13 @@
+{
+  "phone": "Số điện thoại",
+  "facebookAccount": "Tài khoản facebook",
+  "googleAccount": "Tài khoản google",
+  "auth.hasRegistered": "{name} đã được đăng ký",
+  "auth.wrongPassword": "Sai mật khẩu",
+  "auth.wrongOldPassword": "Mật khẩu cũ không đúng",
+  "auth.accountBlocked": "Tài khoản đã bị khóa",
+  "auth.accountNotExist": "Tài khoản không tồn tại",
+  "auth.accountNotRegister": "Tài khoản chưa được đăng ký",
+  "auth.otpWrong": "Mã OTP không đúng",
+  "auth.otpExpired": "Mã OTP đã hết hạn"
+}
