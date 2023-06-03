@@ -46,7 +46,6 @@ export class AuthController {
     @Post('/login')
     @UseNamespace()
     @Validator({
-        phone: Joi.string(),
         password: Joi.string().required()
     })
     async login(
@@ -54,9 +53,10 @@ export class AuthController {
         @Req() req: Request,
         @HeaderParams('lang') lang: LangCode,
         @HeaderParams('namespace') namespace: string,
-        @BodyParams('phone') phone: string,
+        @BodyParams('username') phone: string,
         @BodyParams('password') password: string,
     ) {
+        console.log('in')
         const customer = await this.customerService.login(phone, password, req.store, lang);
 
         const token = JWT.sign({ id: customer.id, type: AuthType.Customer });

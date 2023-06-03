@@ -479,12 +479,10 @@ export class ProductService {
         const subFlashSaleQuery = FlashSaleCampaign.createQueryBuilder('flashSaleCampaign')
             .select('flashSaleCampaign.id', 'id')
             .where(`${current} BETWEEN flashSaleCampaign.startAt AND flashSaleCampaign.endAt AND flashSaleCampaign.isDeleted = 0`)
-            .andWhere(storeId ? `flashSaleCampaign.storeId = ${storeId}` : 'flashSaleCampaign.storeId is null')
 
         const subPromotionQuery = PromotionCampaign.createQueryBuilder('promotionCampaign')
             .select('promotionCampaign.id', 'id')
             .where(`${current} BETWEEN promotionCampaign.startAt AND promotionCampaign.endAt AND promotionCampaign.isDeleted = 0`)
-            .andWhere(storeId ? `promotionCampaign.storeId = ${storeId}` : 'promotionCampaign.storeId is null');
 
         const query = Product.createQueryBuilder('product')
             .leftJoinAndSelect('product.productCategory', 'productCategory')
@@ -595,7 +593,7 @@ export class ProductService {
             product.productTags = null;
         }
 
-        if (transportIds.length) {
+        if (transportIds?.length) {
             await product.assignTransports(transportIds)
         } else if (transportIds?.length == 0) {
             product.transports = null;

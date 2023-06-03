@@ -36,14 +36,6 @@ export class ImageController {
             throw new BadRequest("Only accept image format!");
         }
 
-        const oldFilePath = file.path
-        const newDir = path.join(CONFIG.UPLOAD_DIR, 'image');
-        const newPath = await ImageUtil.compress(file.path, newDir)
-
-        file.path = newPath.replace(CONFIG.UPLOAD_DIR, '');
-
-        fse.unlinkSync(oldFilePath);
-
         return res.sendOK(file)
     }
 

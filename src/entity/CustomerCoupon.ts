@@ -102,9 +102,9 @@ export class CustomerCoupon extends CoreEntity {
             case CouponDiscountType.Percent:
                 if (customerCouponCampaign.couponCampaign.conditionType == CouponConditionType.SomeProduct) {
                     moneyProduct = discountProducts.reduce((prev, cur) => prev + (cur.finalPrice * cur.quantity), 0);
-                    moneyDiscount = this.calcMoneyDiscountPercent(moneyProduct, customerCoupon.couponCampaign)
+                    moneyDiscount = this.calcMoneyDiscountPercent(moneyProduct, customerCouponCampaign.couponCampaign)
                 } else {
-                    moneyDiscount = this.calcMoneyDiscountPercent(moneyProduct, customerCoupon.couponCampaign)
+                    moneyDiscount = this.calcMoneyDiscountPercent(moneyProduct, customerCouponCampaign.couponCampaign)
                 }
                 break;
 
@@ -137,7 +137,7 @@ export class CustomerCoupon extends CoreEntity {
     calcMoneyDiscountPercent(totalMoney: number, couponCampaign: CouponCampaign) {
         let moneyDiscount = 0;
         if (couponCampaign.discountType == CouponDiscountType.Percent) {
-            if (totalMoney > couponCampaign.discountMaxValue) {
+            if (totalMoney * couponCampaign.discountValue / 100 > couponCampaign.discountMaxValue) {
                 moneyDiscount = couponCampaign.discountMaxValue
             } else {
                 moneyDiscount = Math.floor(totalMoney * (couponCampaign.discountValue / 100));

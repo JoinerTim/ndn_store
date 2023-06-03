@@ -82,9 +82,9 @@ export class CustomerCouponService {
         }
 
         if (isExpired === true) {
-            where += ` AND customerCoupon.expiredAt < ${currentAt}`
+            where += ` AND couponCampaign.endAt < ${currentAt}`
         } else if (isExpired === false) {
-            where += ` AND customerCoupon.expiredAt >= ${currentAt}`
+            where += ` AND couponCampaign.endAt >= ${currentAt}`
         }
 
         const [customerCoupons, total] = await CustomerCoupon.createQueryBuilder('customerCoupon')

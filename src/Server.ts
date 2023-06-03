@@ -29,6 +29,9 @@ import path from "path";
 import * as admin from "./controllers/admin/index";
 import * as customer from "./controllers/customer/index";
 import * as store from "./controllers/store/index";
+import express from "express";
+import { fileFilter, storage } from "./util/upload";
+import { uuid } from "uuidv4";
 
 process.setMaxListeners(0)
 
@@ -77,58 +80,24 @@ function handleHttpsOptions(): ServerOptions {
 // HANDLE MULTER UPLOAD
 function handleStorage(): multer.StorageEngine {
     return multer.diskStorage({
-        destination: (
-            req: Request, file: Express.Multer.File,
-            callback: (error: Error | null, destination: string) => void
-        ) => {
-            const des = getNameController(req)
-            if (!des) {
-                callback(new Error("Wrong controller"), null)
-            } else {
-                try {
+        destination: (req, file, cb) => {
+            //@ts-ignore
+            const baseUrl = req.baseUrl;
+            const segments = baseUrl.split("/");
+            const pathName = segments[segments.length - 1];
+            const pathFinal = `./uploads/${pathName}`;
 
-                    if (des == 'media') {
-                        const year = moment().get('year').toString()
-                        const month = (moment().get('month') + 1).toString();
-                        const uploadPath = path.join(CONFIG.UPLOAD_DIR, des, year, month)
+            fs.mkdirSync(pathFinal, { recursive: true });
 
-                        if (!fs.existsSync(uploadPath)) {
-                            fs.mkdirSync(uploadPath, { recursive: true })
-                        }
-                        callback(null, uploadPath)
-
-                    } else {
-                        const uploadPath = `${CONFIG.UPLOAD_DIR}/${des}`
-                        if (!fs.existsSync(uploadPath)) {
-                            fs.mkdirSync(uploadPath);
-                        }
-                        callback(null, uploadPath)
-                    }
-                } catch (error) {
-                    callback(error, null)
-                }
-
-            }
+            cb(null, pathFinal);
         },
-        filename: async (
-            req: Request,
-            file: Express.Multer.File,
-            callback: (error: Error | null, filename: string) => void
-        ) => {
-            if (!file.mimetype.includes("image") && !file.mimetype.includes("video"))
-                return callback(new Error("Invalidate file's extend name "), null);
-
-            else {
-                const des = getNameController(req)
-                // const extname = Path.extname(file.path)
-                // return callback(null, v4() + Path.extname(file.originalname));
-                if (des == 'media' && file.mimetype.includes("image")) {
-                    return callback(null, file.originalname);
-                } else {
-                    return callback(null, v4() + Path.extname(file.originalname))
-                }
-            }
-        }
+        filename: (req, file, cb) => {
+            var fileExtension = file.originalname.substr(
+                file.originalname.lastIndexOf(".") + 1
+            );
+            const uniqueSuffix = uuid() + "." + fileExtension;
+            cb(null, uniqueSuffix);
+        },
     });
 }
 
@@ -139,7 +108,12 @@ const OPTION: any = {
     rootDir: __dirname,
     socketIO: {},
     statics: {
-        "/": `${CONFIG.STATIC_DIR}`
+        "/uploads": [
+            {
+                root: path.join(__dirname, "../uploads"),
+                hook: "$beforeRoutesInit",
+            },
+        ],
     },
     acceptMimes: ["application/json"],
     mount: {

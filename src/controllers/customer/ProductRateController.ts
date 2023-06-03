@@ -83,6 +83,24 @@ export class ProductRateController {
         })
     }
 
+    @Get('/summary')
+    @UseNamespace()
+    async summary(
+        @HeaderParams("token") token: string,
+        @Req() req: Request,
+        @Res() res: Response,
+        @QueryParams('productId') productId: number
+    ) {
+        const data = await ProductRate.createQueryBuilder('productRate')
+            .select('productRate.star', 'star')
+            .addSelect('COALESCE(count(*), 0)', 'total')
+            .leftJoin('productRate.product', 'product')
+            .where('product.id = :productId', { productId })
+            .addGroupBy('productRate.star')
+            .getRawMany()
+        return res.sendOK(data)
+    }
+
 
     // =====================CREATE ITEM=====================
     @Post('')

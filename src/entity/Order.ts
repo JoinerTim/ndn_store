@@ -29,6 +29,7 @@ import { Configuration, ConfigurationParam } from "./Configuration";
 import { Staff } from "./Staff";
 import { ProductTax } from "./ProductTax";
 import { ProductCategory } from "./ProductCategory";
+import { OrderProductTax } from "./OrderProductTax";
 
 interface CustomerRef {
     id: number,
@@ -147,6 +148,10 @@ export class Order extends CoreEntity {
 
     @Column({ default: 0, type: 'double' })
     @Property()
+    totalMoneyDiscount: number; //giảm giá tiền hàng cho promotion
+
+    @Column({ default: 0, type: 'double' })
+    @Property()
     moneyDiscount: number; //giảm giá tiền hàng cho promotion
 
     @Column({ default: 0, type: 'double' })
@@ -207,6 +212,9 @@ export class Order extends CoreEntity {
 
     @OneToMany(() => OrderDetail, gift => gift.orderGift)
     gifts: OrderDetail[];
+
+    @OneToMany(() => OrderProductTax, orderProductTax => orderProductTax.order)
+    orderProductTaxs: OrderProductTax[];
 
     @OneToMany(() => ProductRate, productRate => productRate.order)
     productRates: ProductRate[];
@@ -302,6 +310,29 @@ export class Order extends CoreEntity {
         }
     }
 
+    public async assignCustomerCouponCode(customerCouponCode: string) {
+        const customerCoupon = await CustomerCoupon.findOneOrThrowOption({
+            where: {
+                code: customerCouponCode
+            },
+            relations: ['couponCampaign']
+        })
+        this.customerCoupon = customerCoupon
+
+        const current = getCurrentTimeInt()
+        if (customerCoupon.couponCampaign.endAt < current) {
+            this.isExpiredCoupon = true;
+            this.couponMsg = 'Mã coupon đã hết hạn.'
+            throw new BadRequest('Mã coupon đã hết hạn.')
+        }
+
+        if (customerCoupon.isUsed) {
+            this.couponMsg = 'Mã coupon đã sử dùng được rồi.'
+            throw new BadRequest('Mã coupon đã sử dùng được rồi.')
+
+        }
+    }
+
 
     public async assignOnlinePayment(onlinePaymentId: number) {
         const onlinePayment = await OnlinePayment.findOneOrThrowId(onlinePaymentId, null, '')
@@ -361,11 +392,7 @@ export class Order extends CoreEntity {
             return shipFee.price;
         }
 
-        if (!shipFee) {
-            throw new BadRequest("Không hỗ trợ giao tới địa chỉ của bạn!");
-        }
-
-        return shipFee.price;
+        return shipFee?.price || 30000;
     }
 
     isExistRefId(customerRefs: CustomerRef[], id: number) {
@@ -386,27 +413,13 @@ export class Order extends CoreEntity {
         this.moneyDiscount = 0;
         this.moneyDiscountCoupon = 0;
         this.moneyDiscountShipFee = 0;
+        this.totalMoneyDiscount = 0
         this.moneyProduct = 0;//tiền hàng
         this.moneyProductOrigin = this.details.reduce((prev, cur) => prev + (cur.price * cur.quantity), 0);
         this.moneyDiscountFlashSale = this.details.reduce((prev, cur) => prev + (cur.discountFlashSale * cur.quantity), 0)
 
         for (const detail of this.details) {
-
-            //get product tax
-            const productTax = await ProductTax.createQueryBuilder('productTax')
-                .leftJoinAndSelect('productTax.products', 'products')
-                .where('products.id = :productId', { productId: detail.product.id })
-                .getOne()
-
-            let moneyTax = 0
-
-            if (productTax) {
-                moneyTax = detail.finalPrice * (productTax.value / 100)
-            }
-
-            this.moneyTax += moneyTax
-            this.moneyProduct += (detail.quantity * (detail.finalPrice + moneyTax));
-
+            this.moneyProduct += (detail.quantity * (detail.finalPrice));
         }
 
         //handle promotion
@@ -510,22 +523,37 @@ export class Order extends CoreEntity {
 
         this.gifts = gifts;
 
+        this.totalMoneyDiscount = this.moneyDiscount
+            + this.moneyDiscountCoupon
+            + this.moneyDiscountShipFee
 
-        this.subTotalMoney = this.moneyProduct
-            - this.moneyDiscount
-            - this.moneyDiscountCoupon
-            - this.moneyDiscountShipFee
-            - this.moneyDiscountFlashSale
+        const productTaxs = await ProductTax.find({
+            where: {
+                isDeleted: false,
+                store: this.store
+            }
+        })
+        const orderProductTaxs = []
+        let totalOrderTaxs = 0
+        for (const item of productTaxs) {
+            const orderProductTax = new OrderProductTax()
+            orderProductTax.name = item.name
+            orderProductTax.value = item.value
+            orderProductTax.moneyTax = item.value / 100 * (this.moneyProduct - this.totalMoneyDiscount)
+            totalOrderTaxs += item.value / 100 * (this.moneyProduct - this.totalMoneyDiscount)
+            orderProductTaxs.push(orderProductTax)
+        }
+        this.orderProductTaxs = orderProductTaxs
 
-        this.moneyVat = Math.round(this.subTotalMoney * (this.vatPercent / 100));
-
-        this.moneyFinal = this.subTotalMoney + this.moneyVat + this.shipFee - this.moneyDiscountShipFee
+        this.moneyVat = totalOrderTaxs
+        this.moneyFinal = this.moneyProduct + this.moneyVat + this.shipFee - this.totalMoneyDiscount
 
         await this.calcPointRefund();
 
         const ratePointConfiguration = await Configuration.findOne({
             where: {
-                param: ConfigurationParam.RewardPoint
+                param: ConfigurationParam.RewardPoint,
+                store: this.store
             }
         })
 

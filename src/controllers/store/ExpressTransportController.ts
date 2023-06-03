@@ -119,9 +119,9 @@ export class ExpressTransportController {
         @BodyParams("order") order: TransportOrderInsert,
         @BodyParams("shopId") shopId: number,
     ) {
-        const data = await ExpressTransport.createOrder(order, shopId)
+        // const data = await ExpressTransport.createOrder(order, shopId)
 
-        return res.sendOK(data)
+        // return res.sendOK(data)
     }
 
 

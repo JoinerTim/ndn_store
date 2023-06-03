@@ -23,7 +23,9 @@ export class OrderDetailInsert {
 
         if (this.flashSaleCampaignDetailId) await orderDetail.assignFlashSaleCampaignDetail(this.flashSaleCampaignDetailId)
 
-        if (this.promotionCampaignDetailId) await orderDetail.assignPromotionCampaignDetail(this.promotionCampaignDetailId);
+        if (this.promotionCampaignDetailId) {
+            await orderDetail.assignPromotionCampaignDetail(this.promotionCampaignDetailId);
+        }
 
         if (this.refCustomerId && customerId && this.refCustomerId !== customerId) await orderDetail.assignRefCustomer(this.refCustomerId)
 
@@ -44,11 +46,22 @@ export class OrderDetailInsert {
 
         if (orderDetail.flashSaleCampaignDetail && orderDetail.flashSaleCampaignDetail.pending + orderDetail.flashSaleCampaignDetail.sold + orderDetail.quantity > orderDetail.flashSaleCampaignDetail.stock) {
             orderDetail.isOutOfStockFlashSale = true
-            // throw new BadRequest(`Số lượng FlashSale của sản phẩm "${orderDetail.product.name}" không đủ.`);
         }
 
-        orderDetail.finalPrice = orderDetail.product.unitPrice - orderDetail.discount - orderDetail.discountCoupon - orderDetail.discountFlashSale;
+        if (orderDetail.flashSaleCampaignDetail && orderDetail.flashSaleCampaignDetail.stock >= orderDetail.flashSaleCampaignDetail.pending + orderDetail.flashSaleCampaignDetail.sold + orderDetail.quantity) {
+            orderDetail.discountFlashSale = orderDetail.quantity * (orderDetail.product.finalPrice - orderDetail.flashSaleCampaignDetail.finalPrice)
+        }
 
+        let orderPriceFlashsale = 0
+
+        if (orderDetail.flashSaleCampaignDetail && orderDetail.flashSaleCampaignDetail.stock >= orderDetail.flashSaleCampaignDetail.pending + orderDetail.flashSaleCampaignDetail.sold + orderDetail.quantity) {
+            orderPriceFlashsale = orderDetail.flashSaleCampaignDetail.finalPrice;
+        } else {
+            orderPriceFlashsale = orderDetail.product.unitPrice;
+        }
+
+        orderDetail.price = orderDetail.product.unitPrice;
+        orderDetail.finalPrice = orderPriceFlashsale - orderDetail.discount - orderDetail.discountCoupon
         return orderDetail
     }
 

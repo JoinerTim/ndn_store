@@ -56,9 +56,6 @@ const couponCampaignDefaults: Partial<CouponCampaign>[] = [
 @Service()
 export class CouponCampaignService {
 
-    $onReady() {
-        this.init()
-    }
 
     async init(store?: Store) {
         for (const item of couponCampaignDefaults) {

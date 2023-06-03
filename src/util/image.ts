@@ -33,10 +33,6 @@ export class ImageUtil {
                 const newPath = path.join(newDir, newFilename)
                 console.log('compress newPath:', newPath)
                 im.convert([filePath, '-sampling-factor', '4:2:0', '-strip', '-quality', '90', '-interlace', mimetype, '-colorspace', 'sRGB', newPath], (err, res) => {
-                    if (err) {
-                        return reject(err)
-                    }
-
                     resolve(newPath)
                 })
             } catch (error) {

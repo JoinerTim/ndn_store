@@ -59,6 +59,7 @@ export class ProductCategoryController {
             lang,
             storeId: req.store.id
         })
+
         return res.sendOK({ productCategories, total });
     }
 
@@ -106,7 +107,7 @@ export class ProductCategoryController {
             })
 
             await this.productService.mapPromotion(products, storeId)
-            this.productService.mapFlashSale(products)
+            await this.productService.mapFlashSale(products)
 
             productCategory.products = products;
         }

@@ -212,11 +212,11 @@ export class Customer extends CoreEntity {
     groupCustomers: GroupCustomer[];
 
     // METHODS
-    @BeforeInsert()
-    @BeforeUpdate()
-    handleUpdateFullName() {
-        this.fullName = this.lastName + ' ' + this.firstName
-    }
+    // @BeforeInsert()
+    // @BeforeUpdate()
+    // handleUpdateFullName() {
+    //     this.fullName = this.lastName + ' ' + this.firstName
+    // }
 
     /**
      * Tính chu kỳ mua

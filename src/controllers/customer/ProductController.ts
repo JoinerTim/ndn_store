@@ -69,7 +69,7 @@ export class ProductController {
         })
 
         await this.productService.mapPromotion(products, storeId)
-        this.productService.mapFlashSale(products)
+        await this.productService.mapFlashSale(products)
 
         return res.sendOK({ products, total });
     }
@@ -166,7 +166,7 @@ export class ProductController {
         }
 
         await this.productService.mapPromotion([product], storeId)
-        this.productService.mapFlashSale([product])
+        await this.productService.mapFlashSale([product])
 
         return res.sendOK(product)
     }

@@ -14,7 +14,7 @@ export const UseNamespace = () => {
 
             const store = await Store.findOne({
                 where: {
-                    namespace,
+                    namespace: 'ndnstore',
                     isDeleted: false
                 }
             })

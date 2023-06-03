@@ -10,24 +10,24 @@ export const UseAuthHash = () => {
     return useDecorators(
         UseBefore((req: Request, res: Response, next: any) => {
 
-            const isDev = req.headers['is-dev'] as any as boolean;
+            // const isDev = req.headers['is-dev'] as any as boolean;
 
-            if (CONFIG.ENV == 'staging' || CONFIG.ENV == 'development') {
-                return next();
-            }
+            // if (CONFIG.ENV == 'staging' || CONFIG.ENV == 'development') {
+            //     return next();
+            // }
 
-            const hash = req.headers['hash'] || '' as any as string
-            console.log('hash header:', hash)
-            const time = +req.headers['time'] || 0 as any as number
-            console.log('time header:', time)
+            // const hash = req.headers['hash'] || '' as any as string
+            // console.log('hash header:', hash)
+            // const time = +req.headers['time'] || 0 as any as number
+            // console.log('time header:', time)
 
-            const isValid = validateHash({
-                hash, time
-            });
+            // const isValid = validateHash({
+            //     hash, time
+            // });
 
-            if (!isValid) {
-                return res.sendForbidden("Request is not valid. Your IP will be tracking");
-            }
+            // if (!isValid) {
+            //     return res.sendForbidden("Request is not valid. Your IP will be tracking");
+            // }
 
             next();
         })

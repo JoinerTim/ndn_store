@@ -30,6 +30,7 @@ import { RefCustomer, RefCustomerType } from '../../entity/RefCustomer';
 import { ProductRefPoint, ProductRefPointType } from '../../entity/ProductRefPoint';
 import { Product } from '../../entity/Product';
 import { Store } from '../../entity/Store';
+import { PromotionCampaign } from '../../entity/PromotionCampaign';
 
 
 export interface CustomerRef {
@@ -186,9 +187,9 @@ export class OrderController {
     @Post('/estimate')
     @Summary('Estimate đơn hàng')
     @UseAuth(VerificationJWT)
+    @UseNamespace()
     @Validator({
         order: Joi.required(),
-        storeId: Joi.required()
     })
     async estimate(
         @HeaderParams("token") token: string,
@@ -198,10 +199,11 @@ export class OrderController {
         @BodyParams('cityId') cityId: number,
         @BodyParams('districtId') districtId: number,
         @BodyParams('wardId') wardId: number,
-        @BodyParams('storeId') storeId: number,
         @BodyParams('couponCampaignId') couponCampaignId: number,
         @BodyParams('customerCouponId') customerCouponId: number,
         @BodyParams('promotionCampaignIds', Number) promotionCampaignIds: number[],
+        @BodyParams('promotionCode') promotionCampaignCode: string,
+        @BodyParams('couponCode') customerCouponCode: string,
         @Req() req: Request,
         @Res() res: Response
     ) {
@@ -214,13 +216,23 @@ export class OrderController {
         if (promotionCampaignIds?.length) {
             await order.assignPromotionCampaigns(promotionCampaignIds)
         }
+        if (promotionCampaignCode) {
+            const promotionCampaign = await PromotionCampaign.findOneOrThrowOption({
+                where: { code: promotionCampaignCode }
+            }, 'Khuyến mãi')
+            await order.assignPromotionCampaigns([promotionCampaign.id])
+        }
 
-        if (storeId) await order.assignStore(storeId)
+        order.store = req.store
 
         if (couponCampaignId) await order.assignCouponCampaign(couponCampaignId)
 
         if (customerCouponId) {
             await order.assignCustomerCoupon(customerCouponId)
+        }
+
+        if (customerCouponCode) {
+            await order.assignCustomerCouponCode(customerCouponCode)
         }
 
         await this.orderService.estimate(order, details, req.customer.id);
@@ -247,7 +259,9 @@ export class OrderController {
         @BodyParams('onlinePaymentId') onlinePaymentId: number,
         @BodyParams('couponCampaignId') couponCampaignId: number,
         @BodyParams('customerCouponId') customerCouponId: number,
+        @BodyParams('couponCode') customerCouponCode: string,
         @BodyParams('promotionCampaignIds', Number) promotionCampaignIds: number[],
+        @BodyParams('promotionCode') promotionCampaignCode: string,
         @Req() req: Request,
         @Res() res: Response
     ) {
@@ -266,7 +280,9 @@ export class OrderController {
             couponCampaignId,
             customerCouponId,
             promotionCampaignIds,
-            customerId: req.customer.id
+            customerId: req.customer.id,
+            customerCouponCode,
+            promotionCampaignCode
         })
 
         let customersRef: CustomerRef[] = [];

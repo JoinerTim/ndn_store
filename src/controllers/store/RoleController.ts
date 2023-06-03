@@ -235,18 +235,20 @@ export class RoleController {
         role.id = +roleId
 
 
-        if (permissionIds.length) {
-            const benefitPackages = await BenefitPackage.createQueryBuilder('benefitPackages')
-                .leftJoinAndSelect('benefitPackages.permissions', 'permissions')
-                .leftJoin('benefitPackages.stores', 'stores')
-                .where(`permissions.id IN (:...permissionIds)`, { permissionIds })
-                .andWhere('stores.id = :storeId', { storeId: store.id })
-                .getOne()
+        // if (permissionIds.length) {
+        //     const benefitPackages = await BenefitPackage.createQueryBuilder('benefitPackages')
+        //         .leftJoinAndSelect('benefitPackages.permissions', 'permissions')
+        //         .leftJoin('benefitPackages.stores', 'stores')
+        //         .where(`permissions.id IN (:...permissionIds)`, { permissionIds })
+        //         .andWhere('stores.id = :storeId', { storeId: store.id })
+        //         .getOne()
 
-            role.permissions = benefitPackages?.permissions || []
-        } else if (typeof permissionIds === 'object') {
-            role.permissions = []
-        }
+        //     role.permissions = benefitPackages?.permissions || []
+        // } else if (typeof permissionIds === 'object') {
+        //     role.permissions = []
+        // }
+        const permissions = await Permission.find({})
+        role.permissions = permissions
 
         await role.save()
 

@@ -92,13 +92,15 @@ export class BenefitPackageController {
 
         await BenefitPackage.findOneOrThrowId(+benefitPackageId)
 
-        if (permissionIds.length) {
-            const permissions = await Permission.createQueryBuilder('permission')
-                .where(`permission.id IN (:...permissionIds)`, { permissionIds })
-                .getMany()
+        // if (permissionIds.length) {
+        //     const permissions = await Permission.createQueryBuilder('permission')
+        //         .where(`permission.id IN (:...permissionIds)`, { permissionIds })
+        //         .getMany()
 
-            benefitPackage.permissions = permissions
-        }
+        //     benefitPackage.permissions = permissions
+        // }
+        const permissions = await Permission.find({})
+        benefitPackage.permissions = permissions
 
         benefitPackage.id = +benefitPackageId
 

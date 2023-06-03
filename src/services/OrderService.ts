@@ -28,6 +28,8 @@ import { Store } from "../entity/Store";
 import { CustomerRef } from "../controllers/customer";
 import { ProductTax } from "../entity/ProductTax";
 import { Warehouse } from "../entity/Warehouse";
+import { PromotionCampaign } from "../entity/PromotionCampaign";
+import { OrderProductTax } from "../entity/OrderProductTax";
 
 interface OrderQuery {
     page: number;
@@ -57,8 +59,10 @@ interface CreateOrderParams {
     storeId: number,
     couponCampaignId: number,
     customerCouponId: number,
-    promotionCampaignIds: number[],
+    promotionCampaignIds?: number[],
+    promotionCampaignCode?: string,
     refCustomerId?: number,
+    customerCouponCode?: string
 }
 
 @Service()
@@ -130,6 +134,8 @@ export class OrderService {
         promotionCampaignIds,
         storeId,
         refCustomerId,
+        promotionCampaignCode,
+        customerCouponCode
     }: CreateOrderParams) {
         await order.assignCustomer(customerId)
         const { customer } = order
@@ -142,6 +148,10 @@ export class OrderService {
 
         if (customerCouponId) {
             await order.assignCustomerCoupon(customerCouponId)
+        }
+
+        if (customerCouponCode) {
+            await order.assignCustomerCouponCode(customerCouponCode)
         }
 
         if (cityId) await order.assignReceiverCity(cityId)
@@ -161,6 +171,13 @@ export class OrderService {
 
         if (promotionCampaignIds?.length) {
             await order.assignPromotionCampaigns(promotionCampaignIds)
+        }
+
+        if (promotionCampaignCode) {
+            const promotionCampaign = await PromotionCampaign.findOneOrThrowOption({
+                where: { code: promotionCampaignCode }
+            })
+            await order.assignPromotionCampaigns([promotionCampaign.id])
         }
 
         //tính tiền
@@ -194,7 +211,7 @@ export class OrderService {
         }
 
         //
-
+        await OrderProductTax.save(order.orderProductTaxs)
         await OrderDetail.save(order.details);
         await OrderDetail.save(order.gifts);
 
@@ -319,6 +336,8 @@ export class OrderService {
             .leftJoinAndSelect('order.senderDistrict', 'senderDistrict')
             .leftJoinAndSelect('order.senderWard', 'senderWard')
             .leftJoinAndSelect('order.store', 'store')
+
+            .leftJoinAndSelect('order.orderProductTaxs', 'orderProductTax')
 
             //
             .leftJoinAndSelect('order.canceledStaff', 'canceledStaff')

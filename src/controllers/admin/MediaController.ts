@@ -88,10 +88,6 @@ export class MediaController {
         const newDir = oldFilePath.replace(oldFilePath.split('/').pop(), '')
         console.log('newDir:', newDir)
 
-        const newPath = await ImageUtil.compress(file.path, newDir)
-
-        file.path = newPath.replace(CONFIG.UPLOAD_DIR, '');
-
         fse.unlinkSync(oldFilePath);
 
 

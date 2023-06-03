@@ -14,6 +14,7 @@ export class CustomerUpdate {
         customer.firstName = this.firstName
         customer.lastName = this.lastName
         customer.avatar = this.avatar
+        customer.fullName = this.fullName
 
         return customer
     }
@@ -22,6 +23,9 @@ export class CustomerUpdate {
 
     @Property()
     firstName: string;
+
+    @Property()
+    fullName: string;
 
     @Property()
     dob: string;//format: Y-m-d

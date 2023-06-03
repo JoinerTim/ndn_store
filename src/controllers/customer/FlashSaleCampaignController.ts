@@ -10,13 +10,15 @@ import { FlashSaleCampaignService } from '../../services/FlashSaleCampaignServic
 import { CustomerService } from '../../services/CustomerService';
 import { UseAuthHash } from '../../middleware/auth/UseAuthHash';
 import { UseNamespace } from '../../middleware/auth/UseNamespace';
+import { ProductService } from '../../services/ProductService';
 
 @Controller("/customer/flashSaleCampaign")
 @Docs("docs_customer")
 export class FlashSaleCampaignController {
     constructor(
         private flashSaleCampaignService: FlashSaleCampaignService,
-        private customerService: CustomerService
+        private customerService: CustomerService,
+        private productService: ProductService
     ) { }
 
 
@@ -52,6 +54,14 @@ export class FlashSaleCampaignController {
             customerId: req.customer?.id,
             storeId
         })
+
+        let products = []
+        flashSaleCampaigns.forEach((item) => {
+            item.flashSaleCampaignDetails.map((item2) => {
+                products.push(item2.product)
+            })
+        })
+        await this.productService.mapFlashSale(products)
 
         return res.sendOK({ flashSaleCampaigns, total });
     }

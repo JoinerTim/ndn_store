@@ -63,6 +63,7 @@ export class FlashSaleCampaignService {
             .leftJoinAndSelect('flashSaleCampaign.store', 'store')
             .leftJoinAndSelect('flashSaleCampaign.flashSaleCampaignDetails', 'flashSaleCampaignDetail')
             .leftJoinAndSelect('flashSaleCampaignDetail.product', 'product', 'product.isDeleted = 0')
+            .leftJoinAndSelect('product.flashSaleCampaignDetails', 'flashSaleCampaignDetail2')
             .leftJoinAndSelect('product.productCustomFields', 'productCustomField')
             .leftJoinAndSelect('productCustomField.customField', 'customField')
             .leftJoinAndSelect('product.productCategory', 'productCategory')
