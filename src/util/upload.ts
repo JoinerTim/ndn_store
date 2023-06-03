@@ -7,12 +7,8 @@ import { BadRequest } from "@tsed/exceptions"
 
 
 export const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        //@ts-ignore
-        const baseUrl = req.baseUrl;
-        const segments = baseUrl.split("/");
-        const pathName = segments[segments.length - 1];
-        const pathFinal = `./uploads/${pathName}`;
+    destination: (req: any, file, cb) => {
+        const pathFinal = `./uploads`;
 
         fs.mkdirSync(pathFinal, { recursive: true });
 
