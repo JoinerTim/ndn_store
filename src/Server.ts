@@ -160,10 +160,10 @@ const PORT = handleProtocolPort()
 @Configuration({ ...OPTION, ...PORT })
 export class Server {
     @Inject()
-    app: PlatformApplication;
+    public app: PlatformApplication
 
     @Configuration()
-    settings: Configuration;
+    public settings: Configuration
 
     public $beforeRoutesInit(): void | Promise<any> {
         this.app.use(PlatformAcceptMimesMiddleware)
