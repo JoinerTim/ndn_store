@@ -155,9 +155,8 @@ const OPTION: any = {
     }
 }
 
-let abc = process.env.PORT
-const PORT = { abc } || handleProtocolPort()
-@Configuration({ ...OPTION, ...PORT })
+
+@Configuration({ ...OPTION, httpPort: '3249' })
 export class Server {
     @Inject()
     public app: PlatformApplication
