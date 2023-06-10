@@ -38,6 +38,7 @@ export class ProductController {
         @QueryParams("limit") limit: number = 10,
         @QueryParams("search") search: string = "",
         @QueryParams('productCategoryId') productCategoryId: number,
+        @QueryParams('productId') productId: number,
         @QueryParams('depotId') depotId: number,
         @Req() req: Request,
         @Res() res: Response
@@ -48,7 +49,8 @@ export class ProductController {
             page,
             storeId: req.store.id,
             productCategoryId,
-            depotId
+            depotId,
+            productId
         });
 
         return res.sendOK({ products, total });

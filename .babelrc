@@ -1,7 +1,0 @@
-{
-    "loader": "babel-loader",
-    "options": {
-        "exclude": ["/node_modules[\\/]core-js/"],
-        "presets": ["@babel/preset-env"]
-    }
-}

@@ -48,18 +48,18 @@ const typeorm: any[] = [
 
 
 // HANDLE HTTP/HTTPS
-function handleProtocolPort(): ProtocolPorts {
-    if (process.env.PRODUCTION_MODE == "1")
-        return {
-            httpsPort: `${CONFIG.HOST}:${CONFIG.PORT}`,
-            httpPort: false
-        }
+// function handleProtocolPort(): ProtocolPorts {
+//     if (process.env.PRODUCTION_MODE == "1")
+//         return {
+//             httpsPort: `${CONFIG.HOST}:${CONFIG.PORT}`,
+//             httpPort: false
+//         }
 
-    return {
-        httpPort: `${CONFIG.HOST}:${CONFIG.PORT}`,
-        httpsPort: false
-    }
-}
+//     return {
+//         httpPort: `${CONFIG.HOST}:${CONFIG.PORT}`,
+//         httpsPort: false
+//     }
+// }
 
 function handleHttpsOptions(): ServerOptions {
     if (process.env.PRODUCTION_MODE == "1") {
@@ -155,9 +155,14 @@ const OPTION: any = {
     }
 }
 
-
-const PORT = handleProtocolPort()
-@Configuration({ ...OPTION, ...PORT })
+// httpPort: '192.168.202.11:5000' 
+// const PORT = handleProtocolPort()
+@Configuration({
+    ...OPTION, ...{
+        httpsPort: `${CONFIG.HOST}:${CONFIG.PORT}`,
+        httpPort: false
+    }
+})
 export class Server {
     @Inject()
     app: PlatformApplication

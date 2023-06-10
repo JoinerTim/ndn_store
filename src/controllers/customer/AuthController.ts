@@ -55,12 +55,17 @@ export class AuthController {
         @HeaderParams('namespace') namespace: string,
         @BodyParams('username') phone: string,
         @BodyParams('password') password: string,
+        @BodyParams('expoToken') expoToken: string,
     ) {
-        console.log('in')
         const customer = await this.customerService.login(phone, password, req.store, lang);
+
 
         const token = JWT.sign({ id: customer.id, type: AuthType.Customer });
 
+        if (expoToken) {
+            customer.expoToken = expoToken
+            await customer.save()
+        }
         return res.sendOK({ token })
     }
 

@@ -252,6 +252,7 @@ export class Product extends CoreEntity {
     public async assignImages(imagePaths: string[]) {
         const medias: Media[] = [];
         for (const path of imagePaths) {
+            console.log('path', path)
             const media = new Media();
             media.url = path;
             medias.push(media);

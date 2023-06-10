@@ -53,9 +53,14 @@ export class ProductRateController {
         @HeaderParams("token") token: string,
         @Req() req: Request,
         @Res() res: Response,
+        @QueryParams('productId') productId: number
     ) {
         const storeId = req.store.id
         let where = `productRate.isDeleted  = false `;
+
+        if (productId) {
+            where += ` AND product.id = :productId`
+        }
 
         const productRate = await ProductRate.createQueryBuilder('productRate')
             .select('productRate.star ', 'star')
@@ -63,7 +68,7 @@ export class ProductRateController {
             .leftJoin('productRate.product', 'product')
             .leftJoin('product.store', 'store')
             .groupBy('productRate.star ')
-            .where(where + ` AND store.id = :storeId`, { storeId })
+            .where(where + ` AND store.id = :storeId`, { storeId, productId })
             .getRawMany()
 
         return res.sendOK(productRate)

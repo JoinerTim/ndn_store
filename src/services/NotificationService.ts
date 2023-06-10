@@ -23,6 +23,7 @@ import { SelectQueryBuilder } from "typeorm";
 import { OneSignal } from "../entity/OneSignal";
 import { GroupCustomer } from "../entity/GroupCustomer";
 import { Product } from "../entity/Product";
+import { ExpoNotification } from "../util/expo";
 
 interface NotificationQuery {
     page: number;
@@ -419,6 +420,8 @@ export class NotificationService {
         const total = await queryCustomer.clone().getCount()
         const totalPages = Math.ceil(total / limit);
         let oneSignalIds: string[] = []
+        let expoTokens: string[] = []
+
 
         let customerIds = []
 
@@ -439,6 +442,7 @@ export class NotificationService {
                 customers = [...customers, ...customerData];
                 for (const customer of customerData) {
                     oneSignalIds = [...oneSignalIds, ...customer.oneSignals.map(e => e.oneSignalId)]
+                    expoTokens = [...expoTokens, ...customers.map(e => e.expoToken)]
                 }
             }
         }
@@ -609,6 +613,10 @@ export class NotificationService {
             console.log('send')
         }
 
+        if (customer.expoToken) {
+            ExpoNotification.pushNotification([customer.expoToken], title, content, {})
+        }
+
         await Customer.createQueryBuilder()
             .update({
                 notificationBadgeCount: () => `notificationBadgeCount + 1`
@@ -711,6 +719,10 @@ export class NotificationService {
                         token: customer.fcmToken
                     }]
                 })
+            }
+
+            if (customer.expoToken) {
+                ExpoNotification.pushNotification([customer.expoToken], title, body, {})
             }
 
             await Customer.createQueryBuilder()

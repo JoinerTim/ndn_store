@@ -546,8 +546,8 @@ export class Order extends CoreEntity {
         this.orderProductTaxs = orderProductTaxs
 
         this.moneyVat = totalOrderTaxs
-        this.moneyFinal = this.moneyProduct + this.moneyVat + this.shipFee - this.totalMoneyDiscount
 
+        this.moneyFinal = Math.round(this.moneyProduct + this.moneyVat + this.shipFee - this.totalMoneyDiscount)
         await this.calcPointRefund();
 
         const ratePointConfiguration = await Configuration.findOne({

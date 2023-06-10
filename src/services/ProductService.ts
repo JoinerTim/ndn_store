@@ -61,6 +61,7 @@ interface ProductQuery {
     ignoreIds?: number[]
     depotId?: number
     isOutOfStock?: boolean
+    productId?: number
 }
 
 @Service()
@@ -84,11 +85,15 @@ export class ProductService {
         lang,
         ignoreIds,
         depotId,
+        productId
     }: ProductQuery) {
         let where = `product.isDeleted = false`;
 
         if (productCategoryId) {
             where += ` AND productCategory.id = :productCategoryId`;
+            if (productId) {
+                where += ` AND product.id != :productId`
+            }
         }
 
         if (isActive) {
@@ -262,7 +267,8 @@ export class ProductService {
                 storeId, productIds,
                 deliveryType,
                 ignoreIds,
-                depotId
+                depotId,
+                productId
             })
             .skip((page - 1) * limit)
             .take(limit)
@@ -337,7 +343,7 @@ export class ProductService {
         }
 
         const query = Product.createQueryBuilder('product')
-            .select(['product.nameEn AS name', 'product.id AS productId', 'product.code AS code', 'product.importPrice as importPrice',
+            .select(['product.name AS name', 'product.id AS productId', 'product.code AS code', 'product.importPrice as importPrice',
                 'warehouses.minimumStock as minimumStock', 'COALESCE(productCategory.nameEn, "") as productCategoryName',
                 'warehouses.isOutOfStock as isOutOfStock', 'depot.id as depotId', 'depot.name as depotName',
                 'COALESCE(SUM(warehouses.quantity), 0) as quantity',

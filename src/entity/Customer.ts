@@ -45,6 +45,10 @@ export class Customer extends CoreEntity {
     @Property()
     email: string;
 
+    @Column({ default: '' })
+    @Property()
+    expoToken: string;
+
     @Column({ default: 0, type: 'double' })
     balance: number; // points
 

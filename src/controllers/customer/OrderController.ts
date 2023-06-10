@@ -167,19 +167,19 @@ export class OrderController {
     ) {
         const orderDetails: OrderDetail[] = await Promise.all(details.map(d => d.toOrderDetail()));
 
-        const { products } = await this.productService.getManyAndCount({
-            page: 1, limit: 0, productIds: orderDetails.filter(e => e.isGift = false).map(e => e.product.id), storeId
-        })
+        // const { products } = await this.productService.getManyAndCount({
+        //     page: 1, limit: 0, productIds: orderDetails.filter(e => e.isGift = false).map(e => e.product.id), storeId
+        // })
 
-        await this.productService.mapPromotion(products, storeId)
-        this.productService.mapFlashSale(products)
+        // await this.productService.mapPromotion(products, storeId)
+        // this.productService.mapFlashSale(products)
 
-        for (const detail of orderDetails) {
-            const find = products.find(e => e.id == detail.product.id)
-            if (find) {
-                detail.product = find;
-            }
-        }
+        // for (const detail of orderDetails) {
+        //     const find = products.find(e => e.id == detail.product.id)
+        //     if (find) {
+        //         detail.product = find;
+        //     }
+        // }
 
         return res.sendOK(orderDetails);
     }
@@ -236,7 +236,6 @@ export class OrderController {
         }
 
         await this.orderService.estimate(order, details, req.customer.id);
-
         return res.sendOK(order)
     }
 
