@@ -155,8 +155,6 @@ const OPTION: any = {
     }
 }
 
-// httpPort: '192.168.202.11:5000' 
-// const PORT = handleProtocolPort()
 @Configuration({
     ...OPTION, httpPort: `${CONFIG.HOST}:${CONFIG.PORT}`,
     httpsPort: false,
