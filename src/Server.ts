@@ -156,7 +156,57 @@ const OPTION: any = {
 }
 
 @Configuration({
-    ...OPTION, httpPort: `${CONFIG.HOST}:${CONFIG.PORT}`,
+    httpsOptions: handleHttpsOptions(),
+    rootDir: __dirname,
+    socketIO: {},
+    statics: {
+        "/uploads": [
+            {
+                root: path.join(__dirname, "../uploads"),
+                hook: "$beforeRoutesInit",
+            },
+        ],
+    },
+    acceptMimes: ["application/json"],
+    mount: {
+        "/v1": [
+            ...Object.values(admin),
+            ...Object.values(customer),
+            ...Object.values(store),
+        ],
+    },
+    responseFilters: [WrapperResponseFilter],
+    swagger: [
+        {
+            path: "/docs_admin",
+            doc: "docs_admin",
+            showExplorer: true,
+            specVersion: "3.0.1",
+        },
+        {
+            path: "/docs_customer",
+            doc: "docs_customer",
+            showExplorer: true,
+            specVersion: "3.0.1",
+        },
+        {
+            path: "/docs_store",
+            doc: "docs_store",
+            showExplorer: true,
+            specVersion: "3.0.1",
+        }
+    ],
+    typeorm,
+    multer: {
+        storage: handleStorage(),
+    },
+    logger: {
+        logRequest: false,
+        // logRequest: CONFIG.ENV != 'production',
+        format: `%[%d{[hh:mm:ss dd/MM/yyyy}] %p%] %m`,
+        requestFields: ["method", "url", "body", "query", "params"]
+    }
+    , httpPort: `${CONFIG.HOST}:${CONFIG.PORT}`,
     httpsPort: false,
 })
 export class Server {
