@@ -20,7 +20,6 @@ import responseAPI from './middleware/response/responseAPI';
 import { WrapperResponseFilter } from './middleware/response/CustomSendResponse';
 import handleError from "./middleware/error/handleError";
 import handleNotFound from "./middleware/error/handleNotFound";
-import logger from './util/logger';
 import CONFIG from "../config";
 import { getNameController, logSection } from "./util/helper";
 import { sendMsgTelegram, telegramGroupIds } from "./util/teletegram";
@@ -48,18 +47,18 @@ const typeorm: any[] = [
 
 
 // HANDLE HTTP/HTTPS
-// function handleProtocolPort(): ProtocolPorts {
-//     if (process.env.PRODUCTION_MODE == "1")
-//         return {
-//             httpsPort: `${CONFIG.HOST}:${CONFIG.PORT}`,
-//             httpPort: false
-//         }
+function handleProtocolPort(): ProtocolPorts {
+    if (process.env.PRODUCTION_MODE == "1")
+        return {
+            httpsPort: `${CONFIG.HOST}:${CONFIG.PORT}`,
+            httpPort: false
+        }
 
-//     return {
-//         httpPort: `${CONFIG.HOST}:${CONFIG.PORT}`,
-//         httpsPort: false
-//     }
-// }
+    return {
+        httpPort: `${CONFIG.HOST}:${CONFIG.PORT}`,
+        httpsPort: false
+    }
+}
 
 function handleHttpsOptions(): ServerOptions {
     if (process.env.PRODUCTION_MODE == "1") {
@@ -155,60 +154,9 @@ const OPTION: any = {
     }
 }
 
-@Configuration({
-    httpsOptions: handleHttpsOptions(),
-    rootDir: __dirname,
-    socketIO: {},
-    statics: {
-        "/uploads": [
-            {
-                root: path.join(__dirname, "../uploads"),
-                hook: "$beforeRoutesInit",
-            },
-        ],
-    },
-    acceptMimes: ["application/json"],
-    mount: {
-        "/v1": [
-            ...Object.values(admin),
-            ...Object.values(customer),
-            ...Object.values(store),
-        ],
-    },
-    responseFilters: [WrapperResponseFilter],
-    swagger: [
-        {
-            path: "/docs_admin",
-            doc: "docs_admin",
-            showExplorer: true,
-            specVersion: "3.0.1",
-        },
-        {
-            path: "/docs_customer",
-            doc: "docs_customer",
-            showExplorer: true,
-            specVersion: "3.0.1",
-        },
-        {
-            path: "/docs_store",
-            doc: "docs_store",
-            showExplorer: true,
-            specVersion: "3.0.1",
-        }
-    ],
-    typeorm,
-    multer: {
-        storage: handleStorage(),
-    },
-    logger: {
-        logRequest: false,
-        // logRequest: CONFIG.ENV != 'production',
-        format: `%[%d{[hh:mm:ss dd/MM/yyyy}] %p%] %m`,
-        requestFields: ["method", "url", "body", "query", "params"]
-    }
-    , httpPort: `${CONFIG.HOST}:${CONFIG.PORT}`,
-    httpsPort: false,
-})
+// httpPort: '192.168.202.11:5000' 
+const PORT = handleProtocolPort()
+@Configuration({ ...OPTION, httpPort: '192.168.202.11:5000' })
 export class Server {
     @Inject()
     app: PlatformApplication
@@ -237,7 +185,7 @@ export class Server {
     public $onReady() {
         logSection('server started')
         const date = moment().format("YYYY-MM-DD HH:mm:ss")
-        logger('info').info(`SERVER RESTART AT ${date}`)
+        // logger('info').info(`SERVER RESTART AT ${date}`)
 
         // if (!CONFIG.IS_DEV) {
         //     sendMsgTelegram(`SERVER ${CONFIG.APPLICATION_NAME} (${CONFIG.ENV}) vừa khởi động lại lúc ${date}`, telegramGroupIds.bmd)
@@ -251,6 +199,6 @@ export class Server {
 
     public $onServerInitError(err: any) {
         console.error(err);
-        logger('error').error("Error On Server Init: ", JSON.stringify(err))
+        // logger('error').error("Error On Server Init: ", JSON.stringify(err))
     }
 }
