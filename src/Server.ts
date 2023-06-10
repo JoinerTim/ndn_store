@@ -158,9 +158,8 @@ const OPTION: any = {
 // httpPort: '192.168.202.11:5000' 
 // const PORT = handleProtocolPort()
 @Configuration({
-    ...OPTION, httpPort: process.env.PORT || 8080,
-    httpsPort: false, // Disable HTTPS
-    address: process.env.HOST || '0.0.0.0',
+    ...OPTION, httpPort: `${CONFIG.HOST}:${CONFIG.PORT}`,
+    httpsPort: false,
 })
 export class Server {
     @Inject()
