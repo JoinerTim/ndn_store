@@ -156,7 +156,7 @@ const OPTION: any = {
 
 // httpPort: '192.168.202.11:5000' 
 const PORT = handleProtocolPort()
-@Configuration({ ...OPTION, httpPort: '192.168.202.11:5000' })
+@Configuration({ ...OPTION, httpsPort: "nghia-ne-nha.onrender.com", httpPort: false })
 export class Server {
     @Inject()
     app: PlatformApplication
